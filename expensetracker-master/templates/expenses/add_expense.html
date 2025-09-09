@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'expenses'%}">Expenses</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Add Expenses</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-body">
+            <form action="{% url 'add-expenses' %}" method="post" id="expense-form">
+                {% include 'partials/_messages.html'%}
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="">Amount</label>
+                    <input type="number" class="form-control form-control-sm" name="amount" value="{{values.amount}}" required />
+                </div>
+                <div class="form-group">
+                    <label for="">Description</label>
+                    <input type="text" class="form-control form-control-sm" name="description" id="description-input"
+                        value="{{values.description}}" required />
+
+                    <!-- Loading indicator -->
+                    <div id="loading-indicator" style="display: none;">
+                        <img class="loader" src="{% static 'img/loader.gif' %}" alt="Loading..." width="25">
+                    </div>
+
+                    <!-- Predicted category display -->
+                    <div id="predicted-category" style="margin-top: 5px;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Category</label>
+                    <select class="form-control" name="category" id="category-select" required>
+                        <option value="">Select a category</option>
+                        {% for category in categories%}
+                        <option value="{{category.name}}" {% if values.category == category.name %}selected{% endif %}>{{category.name}}</option>
+                        {% endfor %}
+                        <option value="Other">Other</option>
+                    </select>
+                    
+                    <!-- Custom category input (hidden by default) -->
+                    <div id="custom-category-group" style="display: none; margin-top: 10px;">
+                        <label for="custom-category-input">Enter custom category:</label>
+                        <input type="text" class="form-control form-control-sm" id="custom-category-input" 
+                               name="custom_category" placeholder="Enter new category name..." />
+                        <small class="text-muted">This will create a new category for future use.</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="">Date of Expense</label>
+                    <input type="date" class="form-control form-control-sm" name="expense_date" value="{{values.expense_date}}" required />
+                </div>
+
+                <input type="submit" id="btn" value="Submit" class="btn btn-primary btn-primary-sm" />
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to predict category based on description
+    function predictCategory() {
+        const description = document.getElementById('description-input').value;
+        if (description) {
+            // Display the loading indicator
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'inline';
+            }
+
+            // Send a request to your server to predict the category
+            const formData = new FormData();
+            formData.append('description', description);
+            fetch('/api/predict-category/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide the loading indicator
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+                
+                // Update the category select input with the predicted category
+                const categorySelect = document.getElementById('category-select');
+                if (categorySelect) {
+                    categorySelect.value = "Predicting Category....";
+                    categorySelect.style.color = "green";
+                    
+                    setTimeout(() => {
+                        categorySelect.value = data.predicted_category;
+                        categorySelect.style.color = "black";
+                    }, 3000);
+                }
+
+                // Display the predicted category below the description input
+                const predictedCategoryDiv = document.getElementById('predicted-category');
+                if (predictedCategoryDiv) {
+                    predictedCategoryDiv.innerHTML = `Predicted Category: ${data.predicted_category}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error predicting category:', error);
+                // Hide the loading indicator in case of an error
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            });
+        }
+    }
+
+    // Function to get the CSRF token from cookies
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // Listen for input changes in the description field
+    const descriptionInput = document.getElementById('description-input');
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', predictCategory);
+    }
+
+    // Add event listener to category select to show/hide custom category input
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            const customCategoryGroup = document.getElementById('custom-category-group');
+            if (customCategoryGroup) {
+                if (this.value === 'Other') {
+                    customCategoryGroup.style.display = 'block';
+                    // Make custom category input required when Other is selected
+                    const customInput = document.getElementById('custom-category-input');
+                    if (customInput) {
+                        customInput.required = true;
+                    }
+                } else {
+                    customCategoryGroup.style.display = 'none';
+                    // Remove required attribute when Other is not selected
+                    const customInput = document.getElementById('custom-category-input');
+                    if (customInput) {
+                        customInput.required = false;
+                        customInput.value = ''; // Clear the input
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock js %}
