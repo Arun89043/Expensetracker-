@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment
+.env
+*.env
+.venv/
+venv/
+env/
+
+# Django
+*.sqlite3
+db.sqlite3
+mydatabase
+*.log
+
+# Django migrations (keep initial, exclude numbered migrations)
+**/migrations/[0-9]*.py
+**/migrations/[0-9]*.pyc
+!**/migrations/__init__.py
+!**/migrations/0001_initial.py
+
+# Static files for production
+/staticfiles/
+/static/admin/
+/static/rest_framework/
+
+# Media files
+/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Documentation
+docs/_build/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
