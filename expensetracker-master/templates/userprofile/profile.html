@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block css %}
+<style>
+    .account-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    .profile-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem;
+        margin: -2rem -2rem 2rem -2rem;
+        border-radius: 20px 20px 0 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: white;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1rem;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .income-sources {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .source-input {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .source-input input[type="text"] {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .source-input input[type="text"]:focus {
+        outline: none;
+        border-color: #48bb78;
+        box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
+    }
+
+    .source-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .source-item {
+        background: rgba(102, 126, 234, 0.05);
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .source-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+    }
+
+    .delete-link {
+        color: #f56565;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .delete-link:hover {
+        background: rgba(245, 101, 101, 0.1);
+        text-decoration: none;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(56, 161, 105, 0.1));
+        color: #48bb78;
+        border-left: 4px solid #48bb78;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(229, 62, 62, 0.1));
+        color: #f56565;
+        border-left: 4px solid #f56565;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .field-error {
+        color: #f56565;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .account-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 1rem;
+        }
+        
+        .source-input {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="account-container">
+    <!-- Profile Update Section -->
+    <div class="profile-card">
+        <div class="card-header">
+            <i class="fas fa-user-edit"></i> Profile Settings
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form action="" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label class="form-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                    {% if field.field.widget.input_type == 'email' %}
+                        <input type="email" class="form-control" id="{{field.id_for_label}}" name="{{field.name}}" value="{{field.value|default:''}}" placeholder="Enter your {{field.label|lower}}">
+                    {% elif field.field.widget.input_type == 'text' %}
+                        <input type="text" class="form-control" id="{{field.id_for_label}}" name="{{field.name}}" value="{{field.value|default:''}}" placeholder="Enter your {{field.label|lower}}">
+                    {% else %}
+                        {{field}}
+                    {% endif %}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <span class="field-error">{{error}}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn-update">
+                <i class="fas fa-save"></i> Update Profile
+            </button>
+        </form>
+    </div>
+
+    <!-- Income Sources Section -->
+    <div class="income-sources">
+        <div class="card-header">
+            <i class="fas fa-money-bill-wave"></i> Income Sources
+        </div>
+        
+        <form action="{%url 'addSource'%}" method="POST">
+            {% csrf_token %}
+            <div class="source-input">
+                <input type="text" placeholder="Enter income source (e.g., Salary, Freelance)" name="Source" required>
+                <button type="submit" class="btn-add">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </form>
+        
+        {% if sources %}
+            <ul class="source-list">
+                {% for source in sources %}
+                    <li class="source-item">
+                        <span><i class="fas fa-dollar-sign"></i> {{source}}</span>
+                        <a href="{%url 'deleteSource' source.id%}" class="delete-link">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="text-align: center; color: #718096; margin-top: 2rem;">
+                <i class="fas fa-info-circle"></i> No income sources added yet. Add your first source above!
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
